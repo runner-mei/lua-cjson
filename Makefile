@@ -11,7 +11,7 @@
 ##                          multi-threaded application. Requries _pthreads_.
 
 ##### Build defaults #####
-LUA_VERSION =       5.1
+LUA_VERSION =       5.2
 TARGET =            cjson.so
 PREFIX =            /usr/local
 #CFLAGS =            -g -Wall -pedantic -fno-inline
@@ -22,6 +22,7 @@ LUA_INCLUDE_DIR =   $(PREFIX)/include
 LUA_CMODULE_DIR =   $(PREFIX)/lib/lua/$(LUA_VERSION)
 LUA_MODULE_DIR =    $(PREFIX)/share/lua/$(LUA_VERSION)
 LUA_BIN_DIR =       $(PREFIX)/bin
+RM = rm -f
 
 ##### Platform overrides #####
 ##
@@ -30,26 +31,73 @@ LUA_BIN_DIR =       $(PREFIX)/bin
 ## See http://lua-users.org/wiki/BuildingModules for further platform
 ## specific details.
 
+ifeq ($(OS),Windows_NT)
+    OS_VERSION = MINGW
+
+    CCFLAGS += -D WIN32
+    ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+        OSARCH = _amd64
+    endif
+    ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+         OSARCH = _386
+    endif
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        OS_VERSION = LINUX
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        OS_VERSION = OSX
+    endif
+
+    UNAME_P := $(shell uname -p)
+    ifeq ($(UNAME_P),x86_64)
+        OSARCH = _amd64
+    endif
+    ifneq ($(filter %86,$(UNAME_P)),)
+        OSARCH = _386
+    endif
+    ifneq ($(filter arm%,$(UNAME_P)),)
+        OSARCH = _arm
+    endif
+endif
+
+
+
 ## Linux
 
+ifeq ($(OS_VERSION),FREEBSD)
+
 ## FreeBSD
-#LUA_INCLUDE_DIR =   $(PREFIX)/include/lua51
+LUA_INCLUDE_DIR =   $(PREFIX)/include/lua52
+
+else ifeq ($(OS_VERSION),OSX)
 
 ## MacOSX (Macports)
-#PREFIX =            /opt/local
-#CJSON_LDFLAGS =     -bundle -undefined dynamic_lookup
+PREFIX =            /opt/local
+CJSON_LDFLAGS =     -bundle -undefined dynamic_lookup
+
+else ifeq ($(OS_VERSION),SOLARIS)
 
 ## Solaris
-#PREFIX =            /home/user/opt
-#CC =                gcc
-#CJSON_CFLAGS =      -fpic -DUSE_INTERNAL_ISINF
+PREFIX =            /home/user/opt
+CC =                gcc
+CJSON_CFLAGS =      -fpic -DUSE_INTERNAL_ISINF
+
+else ifeq ($(OS_VERSION),MINGW)
 
 ## Windows (MinGW)
-#TARGET =            cjson.dll
-#PREFIX =            /home/user/opt
-#CJSON_CFLAGS =      -DDISABLE_INVALID_NUMBERS
-#CJSON_LDFLAGS =     -shared -L$(PREFIX)/lib -llua51
-#LUA_BIN_SUFFIX =    .lua
+CC =                gcc
+TARGET =            cjson$(OSARCH).dll
+PREFIX =            ../lua
+CJSON_CFLAGS =      -DDISABLE_INVALID_NUMBERS
+CJSON_LDFLAGS =     -shared -L$(PREFIX)/src -llua52$(OSARCH)
+LUA_BIN_SUFFIX =    .lua
+
+LUA_INCLUDE_DIR =   $(PREFIX)/src
+RM = del /F /Q 
+
+endif
 
 ##### Number conversion configuration #####
 
@@ -117,4 +165,5 @@ install-extra:
 	cd tests; chmod $(DATAPERM) $(TEST_FILES); chmod $(EXECPERM) *.lua *.pl
 
 clean:
-	rm -f *.o $(TARGET)
+	$(RM) *.o
+	$(RM) $(TARGET)
