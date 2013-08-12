@@ -1429,5 +1429,25 @@ int luaopen_cjson_safe(lua_State *l)
     return 1;
 }
 
+
+
+#ifdef OSARCH_PREFIX
+#define EMPTY
+#define _CONCAT_STRING(a,b,c)  a##b##c
+#define CONCAT_STRING(a,b,c)  _CONCAT_STRING(a, b, c)
+
+int CONCAT_STRING(luaopen_cjson, OSARCH_PREFIX, EMPTY)(lua_State *l)
+{
+    return luaopen_cjson(l);
+}
+
+int CONCAT_STRING(luaopen_cjson, OSARCH_PREFIX, _safe)(lua_State *l)
+{
+    return luaopen_cjson_safe(l);
+}
+
+#endif
+
+
 /* vi:ai et sw=4 ts=4:
  */

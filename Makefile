@@ -90,7 +90,7 @@ else ifeq ($(OS_VERSION),MINGW)
 CC =                gcc
 TARGET =            cjson$(OSARCH).dll
 PREFIX =            ../lua
-CJSON_CFLAGS =      -DDISABLE_INVALID_NUMBERS
+CJSON_CFLAGS =      -DDISABLE_INVALID_NUMBERS -DOSARCH_PREFIX=$(OSARCH)
 CJSON_LDFLAGS =     -shared -L$(PREFIX)/src -llua52$(OSARCH)
 LUA_BIN_SUFFIX =    .lua
 
