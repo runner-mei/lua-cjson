@@ -39,7 +39,7 @@ ifeq ($(OS),Windows_NT)
         OSARCH = _amd64
     endif
     ifeq ($(PROCESSOR_ARCHITECTURE),x86)
-         OSARCH = _x86
+         OSARCH = _386
     endif
 else
     UNAME_S := $(shell uname -s)
@@ -55,7 +55,7 @@ else
         OSARCH = _amd64
     endif
     ifneq ($(filter %86,$(UNAME_P)),)
-        OSARCH = _x86
+        OSARCH = _386
     endif
     ifneq ($(filter arm%,$(UNAME_P)),)
         OSARCH = _arm
