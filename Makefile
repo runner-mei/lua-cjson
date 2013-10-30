@@ -91,7 +91,7 @@ CC =                gcc
 TARGET =            cjson$(OSARCH).dll
 PREFIX =            ../lua
 CJSON_CFLAGS =      -DDISABLE_INVALID_NUMBERS -DOSARCH_PREFIX=$(OSARCH)
-CJSON_LDFLAGS =     -shared -L$(PREFIX)/src -llua52$(OSARCH)
+CJSON_LDFLAGS =     -shared -static-libgcc -L$(PREFIX)/src -llua52$(OSARCH)
 LUA_BIN_SUFFIX =    .lua
 
 LUA_INCLUDE_DIR =   $(PREFIX)/src
